@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated , IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator , PageNotAnInteger , EmptyPage
 
-from base.models import Product , Review
+from base.models import Product , Review , Category
 from base.serializer import ProductSerializer 
 
 from rest_framework import status
@@ -41,6 +41,16 @@ def getProducts(request):
     return Response({'products' :serializ.data , 'page' : page , 'pages' : paginator.num_pages })
 
 
+@api_view(["GET"])
+def getTopProducts(request):
+    
+
+    products = Product.objects.filter(rating__gte=4).order_by('-rating')[0:3]
+  
+    serializ=ProductSerializer(products , many=True)    
+    return Response(serializ.data  )
+
+
 
 @api_view(["GET"])
 def getProduct(request , pk):
@@ -48,9 +58,10 @@ def getProduct(request , pk):
     # product = Product.objects.filter(_id=pk).select_related('user__review')
 
     product=Product.objects.get(_id=pk)
-    product.user
+    # category=Category.objects.get(_id=product.category)
+    # product.category=category
     serializ=ProductSerializer(product , many=False)
-    # print(product)
+    print(product)
     return Response(serializ.data)
 
 @api_view(["PUT"])
@@ -63,7 +74,7 @@ def updateProduct (request , pk ):
     product.price = data['price']
     product.brand = data['brand']
     product.countInStock = data['countInStock']
-    product.category = data['category']
+    # product.category = data['category']
     product.description = data['description']
 
     product.save()
@@ -81,7 +92,7 @@ def createProduct (request ):
         price = 0 ,
         brand ='simple brand' ,
         countInStock = 0 ,
-        category = 'simple category',
+        # category = 'simple category',
         description = ''
      )
 
